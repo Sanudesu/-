@@ -16,15 +16,14 @@ $password = 'パスワード';
 $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
 //テーブルを作成
 $sql = "CREATE TABLE IF NOT EXISTS tb77" //tbtestがまだデータベースに存在しない場合、tbtestを作成する
-//登録する項目
 ." ("
 . "id INT AUTO_INCREMENT PRIMARY KEY," //連続した数値を自動でカラムに格納する
-. "name char(32)," //名前を入れる。文字列、半角英数で32字
-. "comment TEXT," //コメントを入れる。文字列、長めの文章も入る
-. "date TEXT," //日付を入れる
-. "password TEXT" //パスワードを入れる。
+. "name char(32)," //名前設定。文字列か半角英数で32字
+. "comment TEXT," //コメント設定。長めの文章も入る
+. "date TEXT," //日付を設定
+. "password TEXT" //パスワード設定
 .");";
-$stmt = $pdo->query($sql); //SQLを実行する。データベースを操作できる。
+$stmt = $pdo->query($sql); //SQLを実行する。データベースの操作準備完了！
     
 
 //日付データを変数に代入
@@ -34,17 +33,17 @@ $date = date("Y/m/d H:i:s");
     //削除フォームと編集フォームがともに空の場合
     if(empty($_POST["delete"]) && empty($_POST["edit_n"]))
     {
-        //新規投稿の場合
-        //名前とコメントどちらかに入力がある場合
+        //投稿機能
+        //投稿された（名前とコメントどちらかに入力がされた）場合
         if((!empty($_POST["name"]) || !empty($_POST["comment"])) && !empty($_POST["password1"]) 
         && empty($_POST["password2"])
         && empty($_POST["password3"]))
-        {
-            $name = $_POST["name"]; //名前を変数に代入。htmlspecialchars…ENT_QUOTESは不正なhtmlタグの埋め込みを防止する
-            $comment = $_POST["comment"];//コメントを変数に代入。
-            $password1 = $_POST["password1"];//パスワードを変数に代入。
+        {//フォーム送信処理
+            $name = $_POST["name"]; 
+            $comment = $_POST["comment"];
+            $password1 = $_POST["password1"];
             //データベース内のテーブルを読み込み、POSTで受け取った内容を書き込み
-            //prepare, bindParam, executeはPDOでデータベースを操作する際に使うメソッド。
+            //prepare（操作準備）, bindParam（設定）, execute（実行）はPDOでデータベースを操作する際に使うメソッド。
             $sql = $pdo -> prepare("INSERT INTO tb77 (name, comment, date, password) VALUES (:name, :comment, :date, :password)");
             //prepareで実行したいSQL文をセットする。PDOにあるデータを取得し、SQLに代入
             $sql -> bindParam(':name', $name, PDO::PARAM_STR);
@@ -109,14 +108,14 @@ $date = date("Y/m/d H:i:s");
         <input type="text" name="password1" placeholder="パスワード"><br>
         <input type="submit" name="submit" value="投稿"><br> <br>
         
-        💏削除しちゃうん？<br>
+        💏削除してね<br>
         
         <input type="text" name="delete" placeholder="削除番号"><br>
         
         <input type="text" name="password2" placeholder="パスワード"><br>
         <input type="submit" name="submit_d" value="削除"><br><br>
         
-        💏編集しちゃうんだー！<br>
+        💏編集してね<br>
         
         <input type="text" name="edit_n" value="<?php if(!empty($_POST["edit_n"])){echo $edit_n;}?>" placeholder="編集対象番号"><br>
         
@@ -128,7 +127,7 @@ $date = date("Y/m/d H:i:s");
       <br>
 
 <?php
-    //削除フォームだけに入力があるとき
+    //削除フォームだけに入力がある場合
     if(!empty($_POST["delete"]) && empty($_POST["edit_n"]) && 
     !empty($_POST["password2"]) && empty($_POST["password1"]))
     {
@@ -260,7 +259,7 @@ if ((empty($_POST["password1"]) && empty($_POST["password2"]) && empty($_POST["p
 //入力と編集が同時に行われた時
 if((!empty($_POST["name"])) || !empty($_POST["comment"]) && !empty($_POST["password1"]) && !empty($_POST["password3"]))
 {
-    echo "みんなお疲れさま♡♡<br>";
+    echo "入力と編集は同時に行うことができません。<br>";
 }
 
 //データベースの表示
